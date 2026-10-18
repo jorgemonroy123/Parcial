@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ediciones')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-trophy-fill"></i> Ediciones</h1>
+            <p class="page-sub">Controla el ciclo de cada premio: borrador, nominación, votación y cierre.</p>
+        </div>
+        <button type="button" class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#modalEdicion">
+            <i class="bi bi-plus-lg"></i> Nueva edición
+        </button>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(ediciones)}">
+        Aún no hay ediciones. Crea la primera con el botón “Nueva edición”.
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6 fade-up" th:each="e : ${ediciones}">
+            <div class="glass p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h4 class="mb-0" th:text="${e.nombre}">Golden Awards</h4>
+                        <div class="text-secondary" th:text="'Año ' + ${e.anio}">Año 2026</div>
+                    </div>
+                    <span th:replace="~{fragments/layout :: estadoEdicion(${e.estado})}"></span>
+                </div>
+
+                <div class="fases">
+                    <div class="fase" th:classappend="${e.estado == 'BORRADOR'} ? 'activa'">Borrador</div>
+                    <div class="fase" th:classappend="${e.estado == 'NOMINACION'} ? 'activa'">Nominación</div>
+                    <div class="fase" th:classappend="${e.estado == 'VOTACION'} ? 'activa'">Votación</div>
+                    <div class="fase" th:classappend="${e.estado == 'CERRADA'} ? 'activa'">Cerrada</div>
+                </div>
+
+                <div class="small mb-3">
+                    <span th:if="${pendientes[e.id] != null}" class="badge rounded-pill badge-estado estado-pendiente me-1">
+                        <i class="bi bi-hourglass-split"></i> <span th:text="${pendientes[e.id]}">1</span> nominación(es) pendiente(s)
+                    </span>
+                    <span th:if="${e.resultadosPublicados}" class="badge rounded-pill badge-estado estado-aprobada">
+                        <i class="bi bi-eye-fill"></i> Resultados publicados
+                    </span>
+                </div>
+
+                <!-- Cambio de fase -->
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <form th:unless="${e.estado == 'NOMINACION'}" th:action="@{/organizador/ediciones/{id}/estado(id=${e.id})}" method="post">
+                        <input type="hidden" name="estado" value="NOMINACION">
+                        <button type="submit" class="btn btn-sm btn-outline-info"><i class="bi bi-person-plus-fill"></i> Abrir nominación</button>
+                    </form>
+                    <form th:unless="${e.estado == 'VOTACION'}" th:action="@{/organizador/ediciones/{id}/estado(id=${e.id})}" method="post">
+                        <input type="hidden" name="estado" value="VOTACION">
+                        <button type="submit" class="btn btn-sm btn-outline-warning"><i class="bi bi-check2-square"></i> Abrir votación</button>
+                    </form>
+                    <form th:unless="${e.estado == 'CERRADA'}" th:action="@{/organizador/ediciones/{id}/estado(id=${e.id})}" method="post"
+                          onsubmit="return confirm('¿Cerrar esta edición?');">
+                        <input type="hidden" name="estado" value="CERRADA">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock-fill"></i> Cerrar</button>
+                    </form>
+                    <form th:if="${e.estado == 'CERRADA'}" th:action="@{/organizador/ediciones/{id}/publicar(id=${e.id})}" method="post">
+                        <button type="submit" class="btn btn-sm btn-gold">
+                            <i class="bi bi-megaphone-fill"></i>
+                            <span th:text="${e.resultadosPublicados} ? 'Ocultar resultados' : 'Publicar resultados'">Publicar</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Acciones -->
+                <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: var(--ga-card-border) !important;">
+                    <a th:href="@{/organizador/ediciones/{id}/categorias(id=${e.id})}" class="btn btn-sm btn-outline-gold">
+                        <i class="bi bi-tags-fill"></i> Categorías
+                    </a>
+                    <a th:href="@{/organizador/nominaciones(edicionId=${e.id})}" class="btn btn-sm btn-outline-gold">
+                        <i class="bi bi-patch-check-fill"></i> Nominaciones
+                    </a>
+                    <a th:href="@{/resultados/{id}(id=${e.id})}" class="btn btn-sm btn-outline-gold">
+                        <i class="bi bi-bar-chart-fill"></i> Conteo
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-gold ms-auto" data-bs-toggle="modal" data-bs-target="#modalEdicion"
+                            th:attr="data-id=${e.id},data-nombre=${e.nombre},data-anio=${e.anio}">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <form th:action="@{/organizador/ediciones/{id}/eliminar(id=${e.id})}" method="post"
+                          onsubmit="return confirm('Se eliminarán también sus categorías, nominaciones y votos. ¿Continuar?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash-fill"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal crear / editar -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" aria-hidden="true"
+     data-ga-form data-titulo-nuevo="Nueva edición" data-titulo-editar="Editar edición">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/organizador/ediciones/guardar}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="modal-title-text">Nueva edición</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" data-defecto="Golden Awards" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Año</label>
+                        <input type="number" class="form-control" name="anio" min="1900" max="2200" data-defecto="2026" required>
+                    </div>
+                    <p class="small text-secondary mb-0">Las ediciones nuevas se crean en estado <strong>Borrador</strong>.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

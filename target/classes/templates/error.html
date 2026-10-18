@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="glass p-5 text-center fade-up" style="max-width: 520px;">
+        <i class="bi bi-exclamation-octagon-fill text-gold" style="font-size: 3.5rem;"></i>
+        <h1 class="mt-3 mb-1"><span th:text="${status}">404</span></h1>
+        <p class="text-secondary mb-4">
+            <span th:if="${status == 403}">No tienes permiso para entrar a esta sección con tu rol.</span>
+            <span th:if="${status == 404}">La página que buscas no existe.</span>
+            <span th:if="${status != 403 and status != 404}">Ocurrió un problema al procesar tu solicitud.</span>
+        </p>
+        <a th:href="@{/panel}" class="btn btn-gold"><i class="bi bi-house-fill"></i> Volver al panel</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

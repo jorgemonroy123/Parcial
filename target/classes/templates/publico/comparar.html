@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Comparar nominados')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-people"></i> Comparador de nominados</h1>
+            <p class="page-sub">Elige una categoría y selecciona 2 o 3 nominados para comparar estadísticas públicas.</p>
+        </div>
+    </div>
+
+    <form method="get" th:action="@{/publico/comparar}" class="glass p-4 mb-4">
+        <label class="form-label">Categoría</label>
+        <div class="input-group">
+            <select name="categoriaId" class="form-select" required>
+                <option value="">Selecciona categoría...</option>
+                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"
+                        th:selected="${c.id == categoriaId}"></option>
+            </select>
+            <button class="btn btn-gold" type="submit">Cargar nominados</button>
+        </div>
+    </form>
+
+    <form method="post" th:action="@{/publico/comparar}" th:if="${opciones != null and !#lists.isEmpty(opciones)}" class="glass p-4">
+        <input type="hidden" name="categoriaId" th:value="${categoriaId}">
+        <p class="text-secondary">Marca 2 o 3 jugadores:</p>
+        <div class="row g-2">
+            <div class="col-md-6" th:each="o : ${opciones}">
+                <div class="form-check glass p-3">
+                    <input class="form-check-input" type="checkbox" name="jugadorIds" th:value="${o.jugadorId}" th:id="'j'+${o.jugadorId}">
+                    <label class="form-check-label" th:for="'j'+${o.jugadorId}">
+                        <strong th:text="${o.nombre}"></strong>
+                        <span class="text-secondary small" th:text="' · ' + ${o.equipo}"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-gold mt-3"><i class="bi bi-columns-gap"></i> Comparar</button>
+    </form>
+    <div class="text-secondary" th:if="${categoriaId != null and #lists.isEmpty(opciones)}">
+        No hay nominados en esta categoría todavía.
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Votar')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-check2-square"></i> Votar y proponer</h1>
+            <p class="page-sub">Un solo voto por categoría, mientras el periodo de votación esté abierto.</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(ediciones)}">
+        <i class="bi bi-moon-stars fs-1 text-gold"></i>
+        <p class="mt-2 mb-0">No hay ediciones con nominación o votación abierta en este momento.</p>
+    </div>
+
+    <section class="mb-5 fade-up" th:each="e : ${ediciones}">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <h3 class="mb-0" th:text="${e.nombre}">Edición</h3>
+            <span th:replace="~{fragments/layout :: estadoEdicion(${e.estado})}"></span>
+        </div>
+
+        <!-- Periodo de nominacion: formulario para proponer -->
+        <div class="glass p-4 mb-3" th:if="${e.estado == 'NOMINACION'}">
+            <h5><i class="bi bi-person-plus-fill text-gold"></i> Proponer un nominado</h5>
+            <p class="small text-secondary">Tu propuesta quedará pendiente hasta que el organizador la apruebe.</p>
+            <form th:action="@{/votante/proponer}" method="post" class="row g-2">
+                <div class="col-md-5">
+                    <select name="categoriaId" class="form-select" required>
+                        <option value="">Categoría…</option>
+                        <option th:each="c : ${categoriasPorEdicion[e.id]}" th:value="${c.id}" th:text="${c.nombre}">Cat</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <select name="jugadorId" class="form-select" required>
+                        <option value="">Jugador…</option>
+                        <option th:each="j : ${jugadores}" th:value="${j.id}" th:text="${j.nombre + ' · ' + j.equipo}">Jugador</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-gold">Proponer</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass p-4 text-center text-secondary" th:if="${#lists.isEmpty(categoriasPorEdicion[e.id])}">
+            Esta edición aún no tiene categorías.
+        </div>
+
+        <!-- Categorias y nominados aprobados -->
+        <div class="mb-4" th:each="c : ${categoriasPorEdicion[e.id]}">
+            <h5 class="mb-3">
+                <i class="bi bi-award-fill text-gold"></i> <span th:text="${c.nombre}">Categoría</span>
+                <span class="small text-secondary ms-2" th:text="${c.descripcion}"></span>
+                <span th:if="${misVotos[c.id] != null}" class="badge rounded-pill badge-estado estado-aprobada ms-2">
+                    <i class="bi bi-check-circle-fill"></i> Ya votaste
+                </span>
+            </h5>
+
+            <p class="text-secondary small" th:if="${#lists.isEmpty(nominacionesPorCategoria[c.id])}">
+                Aún no hay nominados aprobados en esta categoría.
+            </p>
+
+            <div class="row g-3">
+                <div class="col-sm-6 col-lg-3" th:each="n : ${nominacionesPorCategoria[c.id]}">
+                    <div class="glass nominee lift" th:classappend="${misVotos[c.id] == n.id} ? 'elegido'">
+                        <span th:if="${misVotos[c.id] == n.id}" class="badge rounded-pill role-pill tu-voto">
+                            <i class="bi bi-heart-fill"></i> Tu voto
+                        </span>
+                        <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(jugadoresPorId[n.jugadorId].nombre, 0, 1))}">J</span>
+                        <div class="fw-semibold" th:text="${jugadoresPorId[n.jugadorId].nombre}">Jugador</div>
+                        <div class="small text-secondary" th:text="${jugadoresPorId[n.jugadorId].equipo}">Equipo</div>
+                        <div class="small text-secondary mb-3">
+                            <span th:text="${jugadoresPorId[n.jugadorId].posicion}">Pos</span> ·
+                            <span th:text="${jugadoresPorId[n.jugadorId].pais}">País</span>
+                        </div>
+                        <form th:if="${e.estado == 'VOTACION'}" th:action="@{/votante/votar}" method="post"
+                              onsubmit="return confirm('Tu voto en esta categoría no se puede cambiar. ¿Confirmar?');">
+                            <input type="hidden" name="nominacionId" th:value="${n.id}">
+                            <button type="submit" class="btn btn-gold btn-sm w-100" th:disabled="${misVotos[c.id] != null}">
+                                <i class="bi bi-hand-thumbs-up-fill"></i> Votar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

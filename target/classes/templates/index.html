@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main>
+    <section class="hero container fade-up">
+        <i class="bi bi-trophy-fill trophy-glow"></i>
+        <h1 class="display-title mt-2" th:text="${plataforma}">Golden Awards</h1>
+        <p class="lead" th:text="${lema} ?: 'Nominación, votación y resultados en un solo lugar'">Lema</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a th:href="@{/login}" class="btn btn-gold btn-lg px-4"><i class="bi bi-box-arrow-in-right"></i> Entrar a la plataforma</a>
+            <a href="#como-funciona" class="btn btn-outline-gold btn-lg px-4">Cómo funciona</a>
+        </div>
+    </section>
+
+    <section class="container pb-4" id="como-funciona">
+        <h2 class="text-center mb-4">Del primer candidato al <span class="text-gold">ganador</span></h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="glass p-4 h-100 lift">
+                    <div class="step-num mb-3">1</div>
+                    <h5>Nominación</h5>
+                    <p class="text-secondary mb-0">Los votantes proponen jugadores en cada categoría y el organizador aprueba o rechaza cada propuesta.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass p-4 h-100 lift">
+                    <div class="step-num mb-3">2</div>
+                    <h5>Votación</h5>
+                    <p class="text-secondary mb-0">Cada votante emite un único voto por categoría, solo mientras el periodo esté abierto.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass p-4 h-100 lift">
+                    <div class="step-num mb-3">3</div>
+                    <h5>Resultados</h5>
+                    <p class="text-secondary mb-0">Al cerrar la edición, el organizador publica los rankings oficiales y las estadísticas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-4">
+        <h2 class="text-center mb-4">Seis roles, <span class="text-gold">una experiencia</span></h2>
+        <div class="row g-3">
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                    <h6>Administrador</h6>
+                    <p class="small text-secondary mb-0">Gestiona usuarios, jugadores y parámetros globales.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-calendar2-event-fill"></i></div>
+                    <h6>Organizador</h6>
+                    <p class="small text-secondary mb-0">Crea ediciones y categorías, abre periodos y aprueba nominaciones.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-check2-square"></i></div>
+                    <h6>Votante</h6>
+                    <p class="small text-secondary mb-0">Propone nominados, emite su voto y consulta su historial.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-star-fill"></i></div>
+                    <h6>Nominado</h6>
+                    <p class="small text-secondary mb-0">Consulta su perfil, sus nominaciones y los resultados oficiales.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-clipboard2-check-fill"></i></div>
+                    <h6>Jurado</h6>
+                    <p class="small text-secondary mb-0">Califica de 1 a 10 a los nominados; su nota se suma a los votos del público.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                    <h6>Público</h6>
+                    <p class="small text-secondary mb-0">Explora rankings y estadísticas de las ediciones publicadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

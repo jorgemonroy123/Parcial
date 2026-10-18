@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nominaciones')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-patch-check-fill"></i> Nominaciones</h1>
+            <p class="page-sub">Aprueba o rechaza las propuestas enviadas por los votantes.</p>
+        </div>
+        <form method="get" th:action="@{/organizador/nominaciones}" th:if="${!#lists.isEmpty(ediciones)}">
+            <select name="edicionId" class="form-select" onchange="this.form.submit()">
+                <option th:each="e : ${ediciones}" th:value="${e.id}" th:text="${e.nombre}"
+                        th:selected="${edicionSel != null and e.id == edicionSel.id}">Edición</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${edicionSel == null}">
+        Primero crea una edición para recibir nominaciones.
+    </div>
+
+    <div th:if="${edicionSel != null}">
+        <p class="mb-3">
+            Estado de la edición: <span th:replace="~{fragments/layout :: estadoEdicion(${edicionSel.estado})}"></span>
+            <span class="small text-secondary ms-2"
+                  th:unless="${edicionSel.estado == 'NOMINACION' or edicionSel.estado == 'VOTACION'}">
+                (Solo se puede aprobar o rechazar durante Nominación o Votación)
+            </span>
+        </p>
+
+        <div class="glass overflow-hidden fade-up">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr><th>Categoría</th><th>Jugador</th><th>Propuesta por</th><th>Fecha</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="n : ${nominaciones}">
+                        <td th:text="${categoriasPorId[n.categoriaId]?.nombre}">Categoría</td>
+                        <td>
+                            <div class="fw-semibold" th:text="${jugadoresPorId[n.jugadorId]?.nombre}">Jugador</div>
+                            <div class="small text-secondary" th:text="${jugadoresPorId[n.jugadorId]?.equipo}">Equipo</div>
+                        </td>
+                        <td th:text="${usuariosPorId[n.propuestoPorId]?.nombre}">Usuario</td>
+                        <td class="small text-secondary"><span th:replace="~{fragments/layout :: fecha(${n.fecha})}"></span></td>
+                        <td><span th:replace="~{fragments/layout :: estadoNominacion(${n.estado})}"></span></td>
+                        <td class="text-end">
+                            <form th:unless="${n.estado == 'APROBADA'}" class="d-inline"
+                                  th:action="@{/organizador/nominaciones/{id}/estado(id=${n.id})}" method="post">
+                                <input type="hidden" name="estado" value="APROBADA">
+                                <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-check-lg"></i> Aprobar</button>
+                            </form>
+                            <form th:unless="${n.estado == 'RECHAZADA'}" class="d-inline"
+                                  th:action="@{/organizador/nominaciones/{id}/estado(id=${n.id})}" method="post">
+                                <input type="hidden" name="estado" value="RECHAZADA">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Rechazar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(nominaciones)}">
+                        <td colspan="6" class="text-center text-secondary py-4">Esta edición todavía no tiene nominaciones.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

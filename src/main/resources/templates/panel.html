@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Panel')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title">Hola, <span class="text-gold" th:text="${usuario.nombre}">Usuario</span></h1>
+            <p class="page-sub">Este es tu panel de <span th:text="${plataforma}">Golden Awards</span>.</p>
+        </div>
+        <span class="badge rounded-pill role-pill fs-6 px-3 py-2">
+            <i class="bi bi-person-badge-fill"></i> <span th:text="${rolNombre}">Rol</span>
+        </span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-4 fade-up" th:each="t : ${tarjetas}">
+            <a th:href="@{${t['enlace']}}" class="glass stat-card lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <i class="bi stat-icon" th:classappend="${t['icono']}"></i>
+                    <i class="bi bi-arrow-up-right text-secondary"></i>
+                </div>
+                <div class="stat-value" th:text="${t['valor']}">0</div>
+                <div class="fw-semibold mt-2" th:text="${t['titulo']}">Titulo</div>
+                <div class="small text-secondary" th:text="${t['detalle']}">Detalle</div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

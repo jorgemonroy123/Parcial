@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Evaluar')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-clipboard2-check-fill"></i> Evaluar nominados</h1>
+            <p class="page-sub">Califica de 1 a 10 a cada nominado mientras la edición esté en votación. Puedes corregir tu nota cuando quieras.</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(ediciones)}">
+        <i class="bi bi-moon-stars fs-1 text-gold"></i>
+        <p class="mt-2 mb-0">No hay ediciones en periodo de votación en este momento.</p>
+    </div>
+
+    <section class="mb-5 fade-up" th:each="e : ${ediciones}">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <h3 class="mb-0" th:text="${e.nombre}">Edición</h3>
+            <span th:replace="~{fragments/layout :: estadoEdicion(${e.estado})}"></span>
+        </div>
+
+        <div class="glass p-4 text-center text-secondary" th:if="${#lists.isEmpty(categoriasPorEdicion[e.id])}">
+            Esta edición aún no tiene categorías.
+        </div>
+
+        <div class="mb-4" th:each="c : ${categoriasPorEdicion[e.id]}">
+            <h5 class="mb-3">
+                <i class="bi bi-award-fill text-gold"></i> <span th:text="${c.nombre}">Categoría</span>
+                <span class="small text-secondary ms-2" th:text="${c.descripcion}"></span>
+            </h5>
+
+            <p class="text-secondary small" th:if="${#lists.isEmpty(nominacionesPorCategoria[c.id])}">
+                Aún no hay nominados aprobados en esta categoría.
+            </p>
+
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-4" th:each="n : ${nominacionesPorCategoria[c.id]}"
+                     th:with="p=${misPuntajes[n.id]}, j=${jugadoresPorId[n.jugadorId]}">
+                    <div class="glass nominee lift" th:classappend="${p != null} ? 'elegido'">
+                        <span th:if="${p != null}" class="badge rounded-pill role-pill tu-voto">
+                            <i class="bi bi-check2-circle"></i> <span th:text="${p.puntaje}">8</span>/10
+                        </span>
+                        <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(j.nombre, 0, 1))}">J</span>
+                        <div class="fw-semibold" th:text="${j.nombre}">Jugador</div>
+                        <div class="small text-secondary" th:text="${j.equipo}">Equipo</div>
+                        <div class="small text-secondary mb-3">
+                            <span th:text="${j.posicion}">Pos</span> · <span th:text="${j.pais}">País</span>
+                        </div>
+
+                        <form th:action="@{/jurado/puntuar}" method="post" class="text-start">
+                            <input type="hidden" name="nominacionId" th:value="${n.id}">
+                            <label class="form-label small mb-1">
+                                Puntaje: <strong class="text-gold"><output th:text="${p != null ? p.puntaje : 5}">5</output></strong>/10
+                            </label>
+                            <input type="range" class="form-range" name="puntaje" min="1" max="10" step="1"
+                                   th:value="${p != null ? p.puntaje : 5}"
+                                   oninput="this.previousElementSibling.querySelector('output').textContent = this.value">
+                            <textarea class="form-control form-control-sm mb-2" name="comentario" rows="2" maxlength="300"
+                                      placeholder="Comentario (opcional)"
+                                      th:text="${p != null ? p.comentario : ''}"></textarea>
+                            <button type="submit" class="btn btn-gold btn-sm w-100">
+                                <i class="bi bi-send-check-fill"></i>
+                                <span th:text="${p != null ? 'Actualizar calificación' : 'Calificar'}">Calificar</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

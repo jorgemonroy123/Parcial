@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Estadísticas')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4">
+    <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-pie-chart-fill"></i> Estadísticas interactivas</h1>
+        <p class="page-sub">Distribución de nominados, participación por edición y estados.</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="glass p-3 text-center"><div class="fs-2 text-gold" th:text="${totalNominaciones}">0</div><div class="small text-secondary">Nominaciones</div></div></div>
+        <div class="col-md-4"><div class="glass p-3 text-center"><div class="fs-2 text-gold" th:text="${totalJugadores}">0</div><div class="small text-secondary">Jugadores</div></div></div>
+        <div class="col-md-4"><div class="glass p-3 text-center"><div class="fs-2 text-gold" th:text="${totalFeedbacks}">0</div><div class="small text-secondary">Opiniones</div></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="glass p-3"><h6 class="text-gold">Nominados por categoría</h6><canvas id="chartCat" height="220"></canvas></div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass p-3"><h6 class="text-gold">Nominaciones por edición</h6><canvas id="chartEd" height="220"></canvas></div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass p-3"><h6 class="text-gold">Distribución por estado</h6><canvas id="chartEst" height="220"></canvas></div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass p-3"><h6 class="text-gold">Votos por categoría</h6><canvas id="chartVot" height="220"></canvas></div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+const gold = '#d4af37';
+const palette = ['#d4af37','#c9a227','#8b7355','#f5e6b8','#6c757d','#20c997','#0dcaf0','#fd7e14'];
+function mk(id, type, labels, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  new Chart(el, {
+    type: type,
+    data: { labels: labels, datasets: [{ data: data, backgroundColor: palette, borderColor: gold, borderWidth: type==='line'?2:0 }] },
+    options: { plugins: { legend: { labels: { color: '#ccc' } } }, scales: type==='doughnut'?{}:{ x:{ ticks:{color:'#aaa'}, grid:{color:'#333'} }, y:{ ticks:{color:'#aaa'}, grid:{color:'#333'} } } }
+  });
+}
+mk('chartCat','bar', /*[[${labelsCategoria}]]*/ [], /*[[${dataCategoria}]]*/ []);
+mk('chartEd','bar', /*[[${labelsEdicion}]]*/ [], /*[[${dataEdicion}]]*/ []);
+mk('chartEst','doughnut', /*[[${labelsEstado}]]*/ [], /*[[${dataEstado}]]*/ []);
+mk('chartVot','doughnut', /*[[${labelsVotos}]]*/ [], /*[[${dataVotos}]]*/ []);
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mi perfil')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div class="glass p-5 text-center text-secondary" th:if="${jugador == null}">
+        Tu usuario no tiene un jugador asociado. Pide al administrador que lo vincule.
+    </div>
+
+    <div th:if="${jugador != null}">
+        <div class="glass p-4 mb-4 fade-up">
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+                <span class="avatar avatar-xl" th:text="${#strings.toUpperCase(#strings.substring(jugador.nombre, 0, 1))}">J</span>
+                <div>
+                    <h1 class="mb-1" th:text="${jugador.nombre}">Jugador</h1>
+                    <div class="text-secondary">
+                        <i class="bi bi-shield-fill"></i> <span th:text="${jugador.equipo}">Equipo</span> ·
+                        <i class="bi bi-geo-alt-fill"></i> <span th:text="${jugador.pais}">País</span>
+                    </div>
+                    <span class="badge rounded-pill role-pill mt-2" th:text="${jugador.posicion}">Posición</span>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="mb-3">Mis nominaciones</h4>
+        <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(nominaciones)}">
+            Todavía no tienes nominaciones.
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 fade-up" th:each="n : ${nominaciones}" th:with="ed=${edicionesPorId[n.edicionId]}">
+                <div class="glass p-4 h-100 lift">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="small text-secondary" th:text="${ed?.nombre}">Edición</div>
+                            <h5 class="mb-0" th:text="${categoriasPorId[n.categoriaId]?.nombre}">Categoría</h5>
+                        </div>
+                        <span th:replace="~{fragments/layout :: estadoNominacion(${n.estado})}"></span>
+                    </div>
+                    <div class="small mb-2">
+                        Edición: <span th:replace="~{fragments/layout :: estadoEdicion(${ed.estado})}"></span>
+                    </div>
+
+                    <div th:if="${votosRecibidos[n.id] != null}">
+                        <div th:if="${ganadoras.contains(n.id)}" class="fw-bold text-gold fs-5">
+                            <i class="bi bi-trophy-fill"></i> ¡Ganador de la categoría!
+                        </div>
+                        <div class="text-secondary">Votos recibidos: <strong class="text-gold" th:text="${votosRecibidos[n.id]}">0</strong></div>
+                    </div>
+                    <div th:if="${votosRecibidos[n.id] == null}" class="small text-secondary">
+                        Los resultados oficiales aún no están publicados.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a th:href="@{/resultados}" class="btn btn-outline-gold"><i class="bi bi-bar-chart-fill"></i> Ver resultados oficiales</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

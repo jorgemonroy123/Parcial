@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mis calificaciones')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-clock-history"></i> Mis calificaciones</h1>
+            <p class="page-sub">Las notas que has dado como jurado.</p>
+        </div>
+        <a th:href="@{/jurado/evaluar}" class="btn btn-gold"><i class="bi bi-clipboard2-check-fill"></i> Seguir evaluando</a>
+    </div>
+
+    <div class="glass overflow-hidden fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Edición</th><th>Categoría</th><th>Nominado</th><th>Puntaje</th><th>Comentario</th><th>Fecha</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${puntajes}" th:with="n=${nominacionesPorId[p.nominacionId]}">
+                    <td th:text="${edicionesPorId[p.edicionId]?.nombre}">Edición</td>
+                    <td th:text="${categoriasPorId[p.categoriaId]?.nombre}">Categoría</td>
+                    <td class="fw-semibold" th:text="${n != null ? jugadoresPorId[n.jugadorId]?.nombre : '—'}">Jugador</td>
+                    <td><strong class="text-gold" th:text="${p.puntaje}">8</strong><span class="text-secondary">/10</span></td>
+                    <td class="small text-secondary" th:text="${p.comentario}">Comentario</td>
+                    <td class="small text-secondary"><span th:replace="~{fragments/layout :: fecha(${p.fecha})}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(puntajes)}">
+                    <td colspan="6" class="text-center text-secondary py-4">Aún no has calificado a ningún nominado.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

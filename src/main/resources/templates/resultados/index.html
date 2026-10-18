@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Resultados')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-bar-chart-fill"></i> Resultados</h1>
+            <p class="page-sub" th:text="${staff} ? 'Como organizador/administrador ves el conteo en vivo de todas las ediciones.' : 'Rankings oficiales de las ediciones publicadas.'">Texto</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(ediciones)}">
+        <i class="bi bi-hourglass-split fs-1 text-gold"></i>
+        <p class="mt-2 mb-0">Todavía no hay resultados publicados.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-4 fade-up" th:each="e : ${ediciones}">
+            <a th:href="@{/resultados/{id}(id=${e.id})}" class="glass stat-card lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <i class="bi bi-trophy-fill stat-icon"></i>
+                    <span th:replace="~{fragments/layout :: estadoEdicion(${e.estado})}"></span>
+                </div>
+                <h4 class="mb-1" th:text="${e.nombre}">Edición</h4>
+                <div class="text-secondary" th:text="'Año ' + ${e.anio}">Año</div>
+                <div class="mt-3 text-gold fw-semibold">Ver ranking <i class="bi bi-arrow-right"></i></div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

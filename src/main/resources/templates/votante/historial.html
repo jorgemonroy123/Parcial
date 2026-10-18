@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mi historial')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-clock-history"></i> Mi historial</h1>
+            <p class="page-sub">Tus votos emitidos y tus propuestas de nominación.</p>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Mis votos</h4>
+    <div class="glass overflow-hidden mb-5 fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Edición</th><th>Categoría</th><th>Votaste por</th><th>Fecha</th></tr></thead>
+                <tbody>
+                <tr th:each="v : ${votos}" th:with="n=${nominacionesPorId[v.nominacionId]}">
+                    <td th:text="${edicionesPorId[v.edicionId]?.nombre}">Edición</td>
+                    <td th:text="${categoriasPorId[v.categoriaId]?.nombre}">Categoría</td>
+                    <td class="fw-semibold" th:text="${n != null ? jugadoresPorId[n.jugadorId]?.nombre : '—'}">Jugador</td>
+                    <td class="small text-secondary"><span th:replace="~{fragments/layout :: fecha(${v.fecha})}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(votos)}">
+                    <td colspan="4" class="text-center text-secondary py-4">Aún no has emitido votos.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Mis propuestas</h4>
+    <div class="glass overflow-hidden fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Edición</th><th>Categoría</th><th>Jugador</th><th>Estado</th><th>Fecha</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${propuestas}">
+                    <td th:text="${edicionesPorId[p.edicionId]?.nombre}">Edición</td>
+                    <td th:text="${categoriasPorId[p.categoriaId]?.nombre}">Categoría</td>
+                    <td class="fw-semibold" th:text="${jugadoresPorId[p.jugadorId]?.nombre}">Jugador</td>
+                    <td><span th:replace="~{fragments/layout :: estadoNominacion(${p.estado})}"></span></td>
+                    <td class="small text-secondary"><span th:replace="~{fragments/layout :: fecha(${p.fecha})}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(propuestas)}">
+                    <td colspan="5" class="text-center text-secondary py-4">No has propuesto nominados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
