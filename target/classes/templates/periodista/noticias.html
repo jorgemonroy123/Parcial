@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mis noticias')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-pencil-square"></i> Mis noticias</h1>
+            <p class="page-sub">Los borradores solo los ves tú; al publicar, la noticia aparece en la página pública sin iniciar sesión.</p>
+        </div>
+        <button type="button" class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#modalNoticia">
+            <i class="bi bi-plus-lg"></i> Nueva noticia
+        </button>
+    </div>
+
+    <div class="glass overflow-hidden fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr><th>Título</th><th>Edición</th><th>Estado</th><th>Fecha</th><th class="text-end">Acciones</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="n : ${noticias}"
+                    th:with="f=${n.fechaPublicacion != null ? n.fechaPublicacion : n.fechaCreacion}">
+                    <td>
+                        <div class="fw-semibold" th:text="${n.titulo}">Título</div>
+                        <div class="small text-secondary" th:text="${n.resumen}">Resumen</div>
+                    </td>
+                    <td>
+                        <span th:if="${n.edicionId != null and edicionesPorId[n.edicionId] != null}"
+                              th:text="${edicionesPorId[n.edicionId].nombre}">Edición</span>
+                        <span th:if="${n.edicionId == null}" class="text-secondary">—</span>
+                    </td>
+                    <td>
+                        <span class="badge rounded-pill badge-estado" th:classappend="'estado-' + ${#strings.toLowerCase(n.estado)}"
+                              th:text="${n.estado == 'PUBLICADA' ? 'Publicada' : 'Borrador'}">Borrador</span>
+                    </td>
+                    <td class="small text-secondary"><span th:replace="~{fragments/layout :: fecha(${f})}"></span></td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-gold" data-bs-toggle="modal" data-bs-target="#modalNoticia"
+                                th:attr="data-id=${n.id},data-titulo=${n.titulo},data-resumen=${n.resumen},data-contenido=${n.contenido},data-edicion-id=${n.edicionId}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <form th:if="${n.estado != 'PUBLICADA'}" th:action="@{/periodista/noticias/{id}/publicar(id=${n.id})}"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Al publicar, la noticia será visible para todos. ¿Continuar?');">
+                            <button type="submit" class="btn btn-sm btn-gold"><i class="bi bi-megaphone-fill"></i> Publicar</button>
+                        </form>
+                        <a th:if="${n.estado == 'PUBLICADA'}" th:href="@{/publico/noticias/{id}(id=${n.id})}"
+                           class="btn btn-sm btn-outline-gold"><i class="bi bi-eye-fill"></i> Ver</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(noticias)}">
+                    <td colspan="5" class="text-center text-secondary py-4">Aún no has escrito noticias.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- Modal crear / editar -->
+<div class="modal fade" id="modalNoticia" tabindex="-1" aria-hidden="true"
+     data-ga-form data-titulo-nuevo="Nueva noticia" data-titulo-editar="Editar noticia">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form th:action="@{/periodista/noticias/guardar}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="modal-title-text">Nueva noticia</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="titulo" maxlength="120" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Resumen <span class="text-secondary small">(opcional, máx. 280)</span></label>
+                        <textarea class="form-control" name="resumen" rows="2" maxlength="280"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contenido</label>
+                        <textarea class="form-control" name="contenido" rows="8" maxlength="5000" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Edición relacionada <span class="text-secondary small">(opcional)</span></label>
+                        <select class="form-select" name="edicionId">
+                            <option value="">Sin edición</option>
+                            <option th:each="e : ${ediciones}" th:value="${e.id}" th:text="${e.nombre}">Edición</option>
+                        </select>
+                    </div>
+                    <p class="small text-secondary mb-0">Se guarda como <strong>borrador</strong>; publícala desde la tabla cuando esté lista.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

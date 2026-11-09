@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Noticias')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-newspaper"></i> Noticias</h1>
+            <p class="page-sub">Crónicas y novedades del premio. No necesitas iniciar sesión.</p>
+        </div>
+        <form method="get" th:action="@{/publico/noticias}">
+            <select class="form-select" name="edicionId" onchange="this.form.submit()">
+                <option value="">Todas las ediciones</option>
+                <option th:each="e : ${ediciones}" th:value="${e.id}" th:text="${e.nombre}"
+                        th:selected="${edicionId == e.id}">Edición</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="glass p-5 text-center text-secondary" th:if="${#lists.isEmpty(noticias)}">
+        <i class="bi bi-newspaper fs-1 text-gold"></i>
+        <p class="mt-2 mb-0">Todavía no hay noticias publicadas.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 fade-up" th:each="n : ${noticias}">
+            <a th:href="@{/publico/noticias/{id}(id=${n['id']})}" class="glass stat-card lift">
+                <div class="small text-secondary mb-2">
+                    <i class="bi bi-calendar3"></i> <span th:text="${n['fechaPublicacion']}">2026-11-10</span>
+                    <span th:if="${n['edicion'] != null}"> · <span th:text="${n['edicion']}">Edición</span></span>
+                </div>
+                <h4 th:text="${n['titulo']}">Título</h4>
+                <p class="text-secondary mb-3" th:text="${n['resumen']}">Resumen</p>
+                <div class="small"><i class="bi bi-person-fill text-gold"></i> <span th:text="${n['autor']}">Autor</span></div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

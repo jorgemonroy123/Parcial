@@ -149,6 +149,11 @@ h1, h2, h3, .ga-brand, .display-title { font-family: 'Playfair Display', Georgia
 .estado-cerrada { background: rgba(167, 139, 250, .16); color: #a78bfa; border-color: rgba(167, 139, 250, .4); }
 .estado-pendiente { background: rgba(251, 146, 60, .15); color: #fb923c; border-color: rgba(251, 146, 60, .4); }
 .estado-aprobada { background: rgba(52, 211, 153, .15); color: #34d399; border-color: rgba(52, 211, 153, .4); }
+.estado-publicada { background: rgba(52, 211, 153, .15); color: #34d399; border-color: rgba(52, 211, 153, .4); }
+.estado-voto { background: rgba(245, 197, 66, .16); color: var(--ga-gold); border-color: rgba(245, 197, 66, .45); }
+.estado-calificacion { background: rgba(167, 139, 250, .16); color: #a78bfa; border-color: rgba(167, 139, 250, .4); }
+.estado-intento_duplicado { background: rgba(251, 146, 60, .15); color: #fb923c; border-color: rgba(251, 146, 60, .4); }
+.estado-voto_duplicado { background: rgba(248, 113, 113, .15); color: #f87171; border-color: rgba(248, 113, 113, .4); }
 .estado-rechazada { background: rgba(248, 113, 113, .15); color: #f87171; border-color: rgba(248, 113, 113, .4); }
 
 /* ---------- Linea de fases de una edicion ---------- */

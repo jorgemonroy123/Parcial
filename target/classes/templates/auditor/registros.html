@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registro de votación')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-journal-text"></i> Registro de votación</h1>
+            <p class="page-sub">Solo lectura. Muestra quién votó o calificó, cuándo y en qué categoría; <strong>nunca por quién</strong>.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/auditor/anomalias(edicionId=${edicionId})}" class="btn btn-outline-gold">
+                <i class="bi bi-exclamation-triangle-fill"></i> Anomalías
+            </a>
+            <a th:href="@{/auditor/exportar(edicionId=${edicionId}, categoriaId=${categoriaId}, tipo=${tipo})}" class="btn btn-gold">
+                <i class="bi bi-download"></i> Exportar CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumen de lo filtrado -->
+    <div class="row g-3 mb-4 fade-up">
+        <div class="col-6 col-lg-3"><div class="glass stat-tile"><div class="num" th:text="${resumen['votos']}">0</div><div class="small text-secondary">Votos</div></div></div>
+        <div class="col-6 col-lg-3"><div class="glass stat-tile"><div class="num" th:text="${resumen['calificaciones']}">0</div><div class="small text-secondary">Calificaciones del jurado</div></div></div>
+        <div class="col-6 col-lg-3"><div class="glass stat-tile"><div class="num" th:text="${resumen['intentosDuplicados']}">0</div><div class="small text-secondary">Intentos duplicados</div></div></div>
+        <div class="col-6 col-lg-3"><div class="glass stat-tile"><div class="num" th:text="${resumen['usuariosDistintos']}">0</div><div class="small text-secondary">Usuarios distintos</div></div></div>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" th:action="@{/auditor/registros}" class="glass p-3 mb-4 fade-up">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Edición</label>
+                <select class="form-select" name="edicionId" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    <option th:each="e : ${ediciones}" th:value="${e.id}" th:text="${e.nombre}"
+                            th:selected="${edicionId == e.id}">Edición</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Categoría</label>
+                <select class="form-select" name="categoriaId">
+                    <option value="">Todas</option>
+                    <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"
+                            th:selected="${categoriaId == c.id}">Categoría</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Tipo</label>
+                <select class="form-select" name="tipo">
+                    <option value="">Todos</option>
+                    <option value="VOTO" th:selected="${tipo == 'VOTO'}">Voto</option>
+                    <option value="CALIFICACION" th:selected="${tipo == 'CALIFICACION'}">Calificación</option>
+                    <option value="INTENTO_DUPLICADO" th:selected="${tipo == 'INTENTO_DUPLICADO'}">Intento duplicado</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-gold flex-grow-1"><i class="bi bi-funnel-fill"></i> Filtrar</button>
+                <a th:href="@{/auditor/registros}" class="btn btn-outline-secondary" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </div>
+    </form>
+
+    <div class="glass overflow-hidden fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr><th>Fecha</th><th>Tipo</th><th>Usuario</th><th>Rol</th><th>Edición</th><th>Categoría</th><th>Canal</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${filas}">
+                    <td class="small text-secondary" th:text="${f['fecha']}">2026-11-10 10:00</td>
+                    <td>
+                        <span class="badge rounded-pill badge-estado" th:classappend="'estado-' + ${#strings.toLowerCase(f['tipo'])}"
+                              th:text="${f['tipo'] == 'VOTO' ? 'Voto' : (f['tipo'] == 'CALIFICACION' ? 'Calificación' : 'Intento duplicado')}">Voto</span>
+                    </td>
+                    <td class="fw-semibold" th:text="${f['usuario']}">usuario</td>
+                    <td><span class="badge rounded-pill role-pill" th:text="${f['rol']}">ROL</span></td>
+                    <td th:text="${f['edicion']}">Edición</td>
+                    <td th:text="${f['categoria']}">Categoría</td>
+                    <td class="small text-secondary" th:text="${f['canal']}">WEB</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(filas)}">
+                    <td colspan="7" class="text-center text-secondary py-4">No hay registros con esos filtros.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="small text-secondary mt-3">
+        Mostrando <strong th:text="${mostrados}">0</strong> de <strong th:text="${total}">0</strong> registro(s)
+        (máximo <span th:text="${limite}">200</span> por consulta). Para el reporte completo usa <em>Exportar CSV</em>.
+    </p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -12,6 +12,7 @@
         <div class="d-flex justify-content-center gap-2 flex-wrap">
             <a th:href="@{/login}" class="btn btn-gold btn-lg px-4"><i class="bi bi-box-arrow-in-right"></i> Entrar a la plataforma</a>
             <a href="#como-funciona" class="btn btn-outline-gold btn-lg px-4">Cómo funciona</a>
+            <a th:href="@{/publico/noticias}" class="btn btn-outline-gold btn-lg px-4"><i class="bi bi-newspaper"></i> Noticias</a>
         </div>
     </section>
 
@@ -43,44 +44,79 @@
     </section>
 
     <section class="container py-4">
-        <h2 class="text-center mb-4">Seis roles, <span class="text-gold">una experiencia</span></h2>
+        <h2 class="text-center mb-4">Diez roles, <span class="text-gold">una experiencia</span></h2>
         <div class="row g-3">
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-shield-lock-fill"></i></div>
                     <h6>Administrador</h6>
                     <p class="small text-secondary mb-0">Gestiona usuarios, jugadores y parámetros globales.</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-calendar2-event-fill"></i></div>
                     <h6>Organizador</h6>
                     <p class="small text-secondary mb-0">Crea ediciones y categorías, abre periodos y aprueba nominaciones.</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-check2-square"></i></div>
                     <h6>Votante</h6>
                     <p class="small text-secondary mb-0">Propone nominados, emite su voto y consulta su historial.</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-star-fill"></i></div>
                     <h6>Nominado</h6>
                     <p class="small text-secondary mb-0">Consulta su perfil, sus nominaciones y los resultados oficiales.</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-clipboard2-check-fill"></i></div>
                     <h6>Jurado</h6>
-                    <p class="small text-secondary mb-0">Califica de 1 a 10 a los nominados; su nota se suma a los votos del público.</p>
+                    <p class="small text-secondary mb-0">Califica de 1 a 10 a los nominados; su nota se suma a los votos.</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg">
+            <div class="col-md-6 col-lg-3">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-journal-text"></i></div>
+                    <h6>Auditor</h6>
+                    <p class="small text-secondary mb-0">Revisa quién votó y cuándo, detecta duplicados y exporta reportes, sin ver por quién.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-shield-check"></i></div>
+                    <h6>Moderador</h6>
+                    <p class="small text-secondary mb-0">Modera los comentarios y las propuestas del público.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-pencil-square"></i></div>
+                    <h6>Periodista</h6>
+                    <p class="small text-secondary mb-0">Redacta y publica noticias y crónicas de cada edición.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-person-lines-fill"></i></div>
+                    <h6>Representante</h6>
+                    <p class="small text-secondary mb-0">Propone cambios al perfil de su nominado.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="glass role-card lift">
+                    <div class="role-icon"><i class="bi bi-headset"></i></div>
+                    <h6>Soporte técnico</h6>
+                    <p class="small text-secondary mb-0">Atiende los tickets de los usuarios.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
                 <div class="glass role-card lift">
                     <div class="role-icon"><i class="bi bi-bar-chart-fill"></i></div>
                     <h6>Público</h6>

@@ -1,6 +1,5 @@
 package com.goldenawards.controller;
 
-import com.goldenawards.config.Ponderacion;
 import com.goldenawards.model.*;
 import com.goldenawards.repository.*;
 import org.springframework.security.core.Authentication;
@@ -25,21 +24,16 @@ public class ResultadoControladorWeb {
     private final VotoRepository votoRepository;
     private final JugadorRepository jugadorRepository;
     private final UsuarioRepository usuarioRepository;
-    private final PuntajeRepository puntajeRepository;
-    private final ParametroRepository parametroRepository;
 
     public ResultadoControladorWeb(EdicionRepository edicionRepository, CategoriaRepository categoriaRepository,
                                    NominacionRepository nominacionRepository, VotoRepository votoRepository,
-                                   JugadorRepository jugadorRepository, UsuarioRepository usuarioRepository,
-                                   PuntajeRepository puntajeRepository, ParametroRepository parametroRepository) {
+                                   JugadorRepository jugadorRepository, UsuarioRepository usuarioRepository) {
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
         this.jugadorRepository = jugadorRepository;
         this.usuarioRepository = usuarioRepository;
-        this.puntajeRepository = puntajeRepository;
-        this.parametroRepository = parametroRepository;
     }
 
     // Administrador y Organizador ven todo (conteo en vivo); los demas solo resultados publicados
@@ -73,9 +67,6 @@ public class ResultadoControladorWeb {
         Map<String, Jugador> jugadores = jugadorRepository.findAll().stream()
                 .collect(Collectors.toMap(Jugador::getId, j -> j));
 
-        int peso = Ponderacion.pesoJurado(parametroRepository);
-        List<Puntaje> puntajes = puntajeRepository.findByEdicionId(id);
-
         List<Map<String, Object>> categorias = new ArrayList<>();
         for (Categoria c : categoriaRepository.findByEdicionId(id)) {
             List<Voto> votosCategoria = votos.stream()
@@ -85,25 +76,8 @@ public class ResultadoControladorWeb {
                     .collect(Collectors.groupingBy(Voto::getNominacionId, Collectors.counting()));
             long total = votosCategoria.size();
 
-            // Calificaciones del jurado en esta categoria (promedio por nominado)
-            List<Puntaje> puntajesCategoria = puntajes.stream()
-                    .filter(p -> c.getId().equals(p.getCategoriaId()))
-                    .collect(Collectors.toList());
-            boolean hayJurado = !puntajesCategoria.isEmpty();
-            Map<String, Double> promedios = puntajesCategoria.stream()
-                    .collect(Collectors.groupingBy(Puntaje::getNominacionId, Collectors.averagingInt(Puntaje::getPuntaje)));
-            Map<String, Long> juradosPorNominado = puntajesCategoria.stream()
-                    .collect(Collectors.groupingBy(Puntaje::getNominacionId, Collectors.counting()));
-
-            // Puntaje final = votos del publico + calificacion del jurado (ver config/Ponderacion)
-            Map<String, Double> finales = new HashMap<>();
-            List<Nominacion> aprobadas = nominacionRepository.findByCategoriaIdAndEstado(c.getId(), "APROBADA");
-            for (Nominacion n : aprobadas) {
-                double pct = total == 0 ? 0 : conteo.getOrDefault(n.getId(), 0L) * 100.0 / total;
-                finales.put(n.getId(), Ponderacion.puntajeFinal(pct, promedios.getOrDefault(n.getId(), 0.0), peso, hayJurado));
-            }
-            aprobadas = aprobadas.stream()
-                    .sorted((a, b) -> Double.compare(finales.get(b.getId()), finales.get(a.getId())))
+            List<Nominacion> aprobadas = nominacionRepository.findByCategoriaIdAndEstado(c.getId(), "APROBADA").stream()
+                    .sorted((a, b) -> Long.compare(conteo.getOrDefault(b.getId(), 0L), conteo.getOrDefault(a.getId(), 0L)))
                     .collect(Collectors.toList());
 
             List<Map<String, Object>> ranking = new ArrayList<>();
@@ -113,10 +87,9 @@ public class ResultadoControladorWeb {
             for (Nominacion n : aprobadas) {
                 indice++;
                 long cantidad = conteo.getOrDefault(n.getId(), 0L);
-                long finalRedondeado = Math.round(finales.get(n.getId()) * 100);
-                if (finalRedondeado != anterior) {   // los empates comparten posicion
+                if (cantidad != anterior) {   // los empates comparten posicion
                     posicion = indice;
-                    anterior = finalRedondeado;
+                    anterior = cantidad;
                 }
                 Jugador j = jugadores.get(n.getJugadorId());
                 Map<String, Object> fila = new LinkedHashMap<>();
@@ -126,18 +99,12 @@ public class ResultadoControladorWeb {
                 fila.put("pais", j != null ? j.getPais() : "");
                 fila.put("votos", cantidad);
                 fila.put("porcentaje", total == 0 ? 0L : Math.round(cantidad * 100.0 / total));
-                fila.put("promedioJurado", promedios.containsKey(n.getId())
-                        ? Double.valueOf(Math.round(promedios.get(n.getId()) * 10) / 10.0) : null);
-                fila.put("juradosQueCalificaron", juradosPorNominado.getOrDefault(n.getId(), 0L));
-                fila.put("puntajeFinal", Math.round(finales.get(n.getId()) * 10) / 10.0);
                 ranking.add(fila);
             }
             Map<String, Object> categoria = new LinkedHashMap<>();
             categoria.put("nombre", c.getNombre());
             categoria.put("descripcion", c.getDescripcion());
             categoria.put("totalVotos", total);
-            categoria.put("hayJurado", hayJurado);
-            categoria.put("pesoJurado", peso);
             categoria.put("ranking", ranking);
             categorias.add(categoria);
         }

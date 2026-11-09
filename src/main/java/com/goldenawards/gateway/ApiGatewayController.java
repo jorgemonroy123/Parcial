@@ -18,8 +18,10 @@ import java.util.Map;
  *   - Admin     → /api/admin/**
  *   - Organizador → /api/organizador/**
  *   - Votante   → /api/votante/**
- *   - Jurado    → /api/jurado/**
  *   - Nominado  → /api/nominado/**
+ *   - Jurado    → /api/jurado/**
+ *   - Auditor   → /api/auditor/**
+ *   - Periodista → /api/periodista/**
  *   - Resultados → /api/resultados/**
  *   - Público   → /api/publico/**
  */
@@ -37,8 +39,10 @@ public class ApiGatewayController {
                 Map.of("nombre", "admin-service", "basePath", "/api/admin", "descripcion", "Usuarios y catálogos"),
                 Map.of("nombre", "organizador-service", "basePath", "/api/organizador", "descripcion", "Ediciones y nominaciones"),
                 Map.of("nombre", "votante-service", "basePath", "/api/votante", "descripcion", "Emisión de votos"),
-                Map.of("nombre", "jurado-service", "basePath", "/api/jurado", "descripcion", "Calificacion de nominados"),
                 Map.of("nombre", "nominado-service", "basePath", "/api/nominado", "descripcion", "Perfil nominado"),
+                Map.of("nombre", "jurado-service", "basePath", "/api/jurado", "descripcion", "Calificación de nominados"),
+                Map.of("nombre", "auditor-service", "basePath", "/api/auditor", "descripcion", "Registro de votación (solo lectura)"),
+                Map.of("nombre", "periodista-service", "basePath", "/api/periodista", "descripcion", "Noticias del periodista"),
                 Map.of("nombre", "resultados-service", "basePath", "/api/resultados", "descripcion", "Rankings"),
                 Map.of("nombre", "publico-service", "basePath", "/api/publico", "descripcion", "Catálogo, comparador, feedback, stats")
         ));

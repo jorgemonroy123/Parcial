@@ -43,10 +43,19 @@
                 <li class="nav-item" sec:authorize="hasRole('VOTANTE')"><a class="nav-link" th:href="@{/votante/votar}">Votar</a></li>
                 <li class="nav-item" sec:authorize="hasRole('VOTANTE')"><a class="nav-link" th:href="@{/votante/historial}">Mi historial</a></li>
 
+                <li class="nav-item" sec:authorize="hasRole('NOMINADO')"><a class="nav-link" th:href="@{/nominado/perfil}">Mi perfil</a></li>
+
                 <li class="nav-item" sec:authorize="hasRole('JURADO')"><a class="nav-link" th:href="@{/jurado/evaluar}">Evaluar</a></li>
                 <li class="nav-item" sec:authorize="hasRole('JURADO')"><a class="nav-link" th:href="@{/jurado/historial}">Mis calificaciones</a></li>
 
-                <li class="nav-item" sec:authorize="hasRole('NOMINADO')"><a class="nav-link" th:href="@{/nominado/perfil}">Mi perfil</a></li>
+                <li class="nav-item" sec:authorize="hasRole('AUDITOR')"><a class="nav-link" th:href="@{/auditor/registros}">Registro</a></li>
+                <li class="nav-item" sec:authorize="hasRole('AUDITOR')"><a class="nav-link" th:href="@{/auditor/anomalias}">Anomalías</a></li>
+
+                <li class="nav-item" sec:authorize="hasRole('PERIODISTA')"><a class="nav-link" th:href="@{/periodista/noticias}">Mis noticias</a></li>
+
+                <li class="nav-item" sec:authorize="hasRole('MODERADOR')"><a class="nav-link" th:href="@{/moderador/inicio}">Moderación</a></li>
+                <li class="nav-item" sec:authorize="hasRole('REPRESENTANTE')"><a class="nav-link" th:href="@{/representante/inicio}">Mi nominado</a></li>
+                <li class="nav-item" sec:authorize="hasRole('SOPORTE')"><a class="nav-link" th:href="@{/soporte/inicio}">Tickets</a></li>
 
                 <li class="nav-item"><a class="nav-link" th:href="@{/resultados}">Resultados</a></li>
                 <li class="nav-item dropdown">
@@ -56,6 +65,7 @@
                         <li><a class="dropdown-item" th:href="@{/publico/comparar}">Comparar</a></li>
                         <li><a class="dropdown-item" th:href="@{/publico/estadisticas}">Estadísticas</a></li>
                         <li><a class="dropdown-item" th:href="@{/publico/feedback}">Feedback</a></li>
+                        <li><a class="dropdown-item" th:href="@{/publico/noticias}">Noticias</a></li>
                     </ul>
                 </li>
             </ul>

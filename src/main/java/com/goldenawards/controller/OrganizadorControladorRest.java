@@ -22,16 +22,13 @@ public class OrganizadorControladorRest {
     private final CategoriaRepository categoriaRepository;
     private final NominacionRepository nominacionRepository;
     private final VotoRepository votoRepository;
-    private final PuntajeRepository puntajeRepository;
 
     public OrganizadorControladorRest(EdicionRepository edicionRepository, CategoriaRepository categoriaRepository,
-                                      NominacionRepository nominacionRepository, VotoRepository votoRepository,
-                                      PuntajeRepository puntajeRepository) {
+                                      NominacionRepository nominacionRepository, VotoRepository votoRepository) {
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
-        this.puntajeRepository = puntajeRepository;
     }
 
     private ResponseEntity<Object> error(HttpStatus status, String mensaje) {
@@ -113,11 +110,10 @@ public class OrganizadorControladorRest {
             return error(HttpStatus.NOT_FOUND, "Edicion no encontrada");
         }
         votoRepository.deleteByEdicionId(id);
-        puntajeRepository.deleteByEdicionId(id);
         nominacionRepository.deleteByEdicionId(id);
         categoriaRepository.deleteByEdicionId(id);
         edicionRepository.deleteById(id);
-        return ResponseEntity.ok(Map.of("mensaje", "Edicion eliminada junto con sus categorias, nominaciones, votos y calificaciones"));
+        return ResponseEntity.ok(Map.of("mensaje", "Edicion eliminada junto con sus categorias, nominaciones y votos"));
     }
 
     // ===================== CATEGORIAS =====================
@@ -171,7 +167,6 @@ public class OrganizadorControladorRest {
             return error(HttpStatus.BAD_REQUEST, "Solo se pueden eliminar categorias en BORRADOR o NOMINACION");
         }
         votoRepository.deleteByCategoriaId(id);
-        puntajeRepository.deleteByCategoriaId(id);
         nominacionRepository.deleteByCategoriaId(id);
         categoriaRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("mensaje", "Categoria eliminada"));
@@ -199,9 +194,8 @@ public class OrganizadorControladorRest {
         if (e == null || (!"NOMINACION".equals(e.getEstado()) && !"VOTACION".equals(e.getEstado()))) {
             return error(HttpStatus.BAD_REQUEST, "Solo se puede aprobar o rechazar mientras la edicion esta en NOMINACION o VOTACION");
         }
-        if ("RECHAZADA".equals(estado)
-                && (votoRepository.existsByNominacionId(id) || puntajeRepository.existsByNominacionId(id))) {
-            return error(HttpStatus.CONFLICT, "La nominacion ya recibio votos o calificaciones del jurado y no puede rechazarse");
+        if ("RECHAZADA".equals(estado) && votoRepository.existsByNominacionId(id)) {
+            return error(HttpStatus.CONFLICT, "La nominacion ya recibio votos y no puede rechazarse");
         }
         n.setEstado(estado);
         return ResponseEntity.ok(nominacionRepository.save(n));

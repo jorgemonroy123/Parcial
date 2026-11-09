@@ -1,5 +1,6 @@
 package com.goldenawards.controller;
 
+import com.goldenawards.config.Auditoria;
 import com.goldenawards.model.*;
 import com.goldenawards.repository.*;
 import org.springframework.dao.DuplicateKeyException;
@@ -30,16 +31,19 @@ public class JuradoControladorWeb {
     private final NominacionRepository nominacionRepository;
     private final JugadorRepository jugadorRepository;
     private final PuntajeRepository puntajeRepository;
+    private final RegistroAuditoriaRepository auditoriaRepository;
 
     public JuradoControladorWeb(UsuarioRepository usuarioRepository, EdicionRepository edicionRepository,
                                 CategoriaRepository categoriaRepository, NominacionRepository nominacionRepository,
-                                JugadorRepository jugadorRepository, PuntajeRepository puntajeRepository) {
+                                JugadorRepository jugadorRepository, PuntajeRepository puntajeRepository,
+                                RegistroAuditoriaRepository auditoriaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.jugadorRepository = jugadorRepository;
         this.puntajeRepository = puntajeRepository;
+        this.auditoriaRepository = auditoriaRepository;
     }
 
     private String resultado(RedirectAttributes ra, boolean exito, String mensaje, String destino) {
@@ -123,6 +127,10 @@ public class JuradoControladorWeb {
             puntajeRepository.save(p);
         } catch (DuplicateKeyException ex) {
             return resultado(ra, false, "Ya calificaste a este nominado; vuelve a intentarlo", destino);
+        }
+        if (esNuevo) {
+            // Auditoria: quien califico, cuando y en que categoria (sin nominado ni nota)
+            Auditoria.registrar(auditoriaRepository, Auditoria.CALIFICACION, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_WEB);
         }
         return resultado(ra, true, esNuevo ? "Calificacion registrada" : "Calificacion actualizada", destino);
     }

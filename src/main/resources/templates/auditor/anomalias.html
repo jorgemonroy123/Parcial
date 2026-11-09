@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Anomalías')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alertas}"></div>
+
+    <a th:href="@{/auditor/registros(edicionId=${edicionId})}" class="btn btn-sm btn-outline-gold mb-3"><i class="bi bi-arrow-left"></i> Registro</a>
+
+    <div class="page-header fade-up">
+        <div>
+            <h1 class="page-title"><i class="bi bi-exclamation-triangle-fill"></i> Anomalías de voto duplicado</h1>
+            <p class="page-sub">Votos repetidos del mismo usuario en una categoría e intentos de segundo voto que el sistema rechazó.</p>
+        </div>
+        <form method="get" th:action="@{/auditor/anomalias}">
+            <select class="form-select" name="edicionId" onchange="this.form.submit()">
+                <option value="">Todas las ediciones</option>
+                <option th:each="e : ${ediciones}" th:value="${e.id}" th:text="${e.nombre}"
+                        th:selected="${edicionId == e.id}">Edición</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="glass overflow-hidden fade-up">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr><th>Anomalía</th><th>Descripción</th><th>Usuario</th><th>Edición</th><th>Categoría</th><th>Veces</th><th>Último hecho</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${anomalias}">
+                    <td>
+                        <span class="badge rounded-pill badge-estado" th:classappend="'estado-' + ${#strings.toLowerCase(a['anomalia'])}"
+                              th:text="${a['anomalia'] == 'VOTO_DUPLICADO' ? 'Voto duplicado' : 'Intento duplicado'}">Tipo</span>
+                    </td>
+                    <td class="small" th:text="${a['descripcion']}">Descripción</td>
+                    <td class="fw-semibold" th:text="${a['usuario']}">usuario</td>
+                    <td th:text="${a['edicion']}">Edición</td>
+                    <td th:text="${a['categoria']}">Categoría</td>
+                    <td><strong class="text-gold" th:text="${a['cantidad']}">1</strong></td>
+                    <td class="small text-secondary" th:text="${a['ultimaFecha']}">2026-11-10 10:00</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(anomalias)}">
+                    <td colspan="7" class="text-center text-secondary py-4">
+                        <i class="bi bi-shield-check text-gold"></i> No se detectaron anomalías.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

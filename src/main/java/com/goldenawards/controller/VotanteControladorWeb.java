@@ -1,5 +1,6 @@
 package com.goldenawards.controller;
 
+import com.goldenawards.config.Auditoria;
 import com.goldenawards.model.*;
 import com.goldenawards.repository.*;
 import org.springframework.dao.DuplicateKeyException;
@@ -23,16 +24,19 @@ public class VotanteControladorWeb {
     private final NominacionRepository nominacionRepository;
     private final VotoRepository votoRepository;
     private final JugadorRepository jugadorRepository;
+    private final RegistroAuditoriaRepository auditoriaRepository;
 
     public VotanteControladorWeb(UsuarioRepository usuarioRepository, EdicionRepository edicionRepository,
                                  CategoriaRepository categoriaRepository, NominacionRepository nominacionRepository,
-                                 VotoRepository votoRepository, JugadorRepository jugadorRepository) {
+                                 VotoRepository votoRepository, JugadorRepository jugadorRepository,
+                                 RegistroAuditoriaRepository auditoriaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
         this.jugadorRepository = jugadorRepository;
+        this.auditoriaRepository = auditoriaRepository;
     }
 
     private String resultado(RedirectAttributes ra, boolean exito, String mensaje, String destino) {
@@ -91,6 +95,7 @@ public class VotanteControladorWeb {
         }
         Usuario u = actual(principal);
         if (votoRepository.existsByVotanteIdAndCategoriaId(u.getId(), n.getCategoriaId())) {
+            Auditoria.registrar(auditoriaRepository, Auditoria.INTENTO_DUPLICADO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_WEB);
             return resultado(ra, false, "Ya emitiste tu voto en esta categoria", destino);
         }
         Voto v = new Voto();
@@ -102,8 +107,11 @@ public class VotanteControladorWeb {
         try {
             votoRepository.save(v);
         } catch (DuplicateKeyException ex) {
+            Auditoria.registrar(auditoriaRepository, Auditoria.INTENTO_DUPLICADO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_WEB);
             return resultado(ra, false, "Ya emitiste tu voto en esta categoria", destino);
         }
+        // Auditoria: quien voto, cuando y en que categoria (nunca por quien)
+        Auditoria.registrar(auditoriaRepository, Auditoria.VOTO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_WEB);
         return resultado(ra, true, "Tu voto fue registrado", destino);
     }
 

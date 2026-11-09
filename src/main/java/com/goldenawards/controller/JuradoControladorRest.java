@@ -1,5 +1,6 @@
 package com.goldenawards.controller;
 
+import com.goldenawards.config.Auditoria;
 import com.goldenawards.model.*;
 import com.goldenawards.repository.*;
 import org.springframework.dao.DuplicateKeyException;
@@ -22,16 +23,19 @@ public class JuradoControladorRest {
     private final NominacionRepository nominacionRepository;
     private final JugadorRepository jugadorRepository;
     private final PuntajeRepository puntajeRepository;
+    private final RegistroAuditoriaRepository auditoriaRepository;
 
     public JuradoControladorRest(UsuarioRepository usuarioRepository, EdicionRepository edicionRepository,
                                  CategoriaRepository categoriaRepository, NominacionRepository nominacionRepository,
-                                 JugadorRepository jugadorRepository, PuntajeRepository puntajeRepository) {
+                                 JugadorRepository jugadorRepository, PuntajeRepository puntajeRepository,
+                                 RegistroAuditoriaRepository auditoriaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.jugadorRepository = jugadorRepository;
         this.puntajeRepository = puntajeRepository;
+        this.auditoriaRepository = auditoriaRepository;
     }
 
     private ResponseEntity<Object> error(HttpStatus status, String mensaje) {
@@ -109,11 +113,17 @@ public class JuradoControladorRest {
         p.setPuntaje(datos.getPuntaje());
         p.setComentario(texto);
         p.setFecha(LocalDateTime.now());
+        Puntaje guardado;
         try {
-            return ResponseEntity.status(esNuevo ? HttpStatus.CREATED : HttpStatus.OK).body(puntajeRepository.save(p));
+            guardado = puntajeRepository.save(p);
         } catch (DuplicateKeyException ex) {
             return error(HttpStatus.CONFLICT, "Ya calificaste a este nominado; vuelve a intentarlo");
         }
+        if (esNuevo) {
+            // Auditoria: quien califico, cuando y en que categoria (sin nominado ni nota)
+            Auditoria.registrar(auditoriaRepository, Auditoria.CALIFICACION, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_API);
+        }
+        return ResponseEntity.status(esNuevo ? HttpStatus.CREATED : HttpStatus.OK).body(guardado);
     }
 
     // Todas las calificaciones del jurado autenticado

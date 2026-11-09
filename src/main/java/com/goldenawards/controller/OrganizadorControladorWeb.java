@@ -22,19 +22,16 @@ public class OrganizadorControladorWeb {
     private final CategoriaRepository categoriaRepository;
     private final NominacionRepository nominacionRepository;
     private final VotoRepository votoRepository;
-    private final PuntajeRepository puntajeRepository;
     private final JugadorRepository jugadorRepository;
     private final UsuarioRepository usuarioRepository;
 
     public OrganizadorControladorWeb(EdicionRepository edicionRepository, CategoriaRepository categoriaRepository,
                                      NominacionRepository nominacionRepository, VotoRepository votoRepository,
-                                     JugadorRepository jugadorRepository, UsuarioRepository usuarioRepository,
-                                     PuntajeRepository puntajeRepository) {
+                                     JugadorRepository jugadorRepository, UsuarioRepository usuarioRepository) {
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
-        this.puntajeRepository = puntajeRepository;
         this.jugadorRepository = jugadorRepository;
         this.usuarioRepository = usuarioRepository;
     }
@@ -130,11 +127,10 @@ public class OrganizadorControladorWeb {
             return resultado(ra, false, "Edicion no encontrada", destino);
         }
         votoRepository.deleteByEdicionId(id);
-        puntajeRepository.deleteByEdicionId(id);
         nominacionRepository.deleteByEdicionId(id);
         categoriaRepository.deleteByEdicionId(id);
         edicionRepository.deleteById(id);
-        return resultado(ra, true, "Edicion eliminada junto con sus categorias, nominaciones, votos y calificaciones", destino);
+        return resultado(ra, true, "Edicion eliminada junto con sus categorias, nominaciones y votos", destino);
     }
 
     // ===================== CATEGORIAS =====================
@@ -193,7 +189,6 @@ public class OrganizadorControladorWeb {
             return resultado(ra, false, "Solo se pueden eliminar categorias en BORRADOR o NOMINACION", destino);
         }
         votoRepository.deleteByCategoriaId(id);
-        puntajeRepository.deleteByCategoriaId(id);
         nominacionRepository.deleteByCategoriaId(id);
         categoriaRepository.deleteById(id);
         return resultado(ra, true, "Categoria eliminada", destino);
@@ -243,9 +238,8 @@ public class OrganizadorControladorWeb {
         if (e == null || (!"NOMINACION".equals(e.getEstado()) && !"VOTACION".equals(e.getEstado()))) {
             return resultado(ra, false, "Solo se puede aprobar o rechazar mientras la edicion esta en NOMINACION o VOTACION", destino);
         }
-        if ("RECHAZADA".equals(estado)
-                && (votoRepository.existsByNominacionId(id) || puntajeRepository.existsByNominacionId(id))) {
-            return resultado(ra, false, "La nominacion ya recibio votos o calificaciones del jurado y no puede rechazarse", destino);
+        if ("RECHAZADA".equals(estado) && votoRepository.existsByNominacionId(id)) {
+            return resultado(ra, false, "La nominacion ya recibio votos y no puede rechazarse", destino);
         }
         n.setEstado(estado);
         nominacionRepository.save(n);

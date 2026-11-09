@@ -1,5 +1,6 @@
 package com.goldenawards.controller;
 
+import com.goldenawards.config.Auditoria;
 import com.goldenawards.model.*;
 import com.goldenawards.repository.*;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,16 +22,19 @@ public class VotanteControladorRest {
     private final NominacionRepository nominacionRepository;
     private final VotoRepository votoRepository;
     private final JugadorRepository jugadorRepository;
+    private final RegistroAuditoriaRepository auditoriaRepository;
 
     public VotanteControladorRest(UsuarioRepository usuarioRepository, EdicionRepository edicionRepository,
                                   CategoriaRepository categoriaRepository, NominacionRepository nominacionRepository,
-                                  VotoRepository votoRepository, JugadorRepository jugadorRepository) {
+                                  VotoRepository votoRepository, JugadorRepository jugadorRepository,
+                                  RegistroAuditoriaRepository auditoriaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.edicionRepository = edicionRepository;
         this.categoriaRepository = categoriaRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
         this.jugadorRepository = jugadorRepository;
+        this.auditoriaRepository = auditoriaRepository;
     }
 
     private ResponseEntity<Object> error(HttpStatus status, String mensaje) {
@@ -122,6 +126,7 @@ public class VotanteControladorRest {
         }
         Usuario u = actual(principal);
         if (votoRepository.existsByVotanteIdAndCategoriaId(u.getId(), n.getCategoriaId())) {
+            Auditoria.registrar(auditoriaRepository, Auditoria.INTENTO_DUPLICADO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_API);
             return error(HttpStatus.CONFLICT, "Ya emitiste tu voto en esta categoria");
         }
         Voto v = new Voto();
@@ -130,11 +135,16 @@ public class VotanteControladorRest {
         v.setNominacionId(n.getId());
         v.setVotanteId(u.getId());
         v.setFecha(LocalDateTime.now());
+        Voto guardado;
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(votoRepository.save(v));
+            guardado = votoRepository.save(v);
         } catch (DuplicateKeyException ex) {
+            Auditoria.registrar(auditoriaRepository, Auditoria.INTENTO_DUPLICADO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_API);
             return error(HttpStatus.CONFLICT, "Ya emitiste tu voto en esta categoria");
         }
+        // Auditoria: quien voto, cuando y en que categoria (nunca por quien)
+        Auditoria.registrar(auditoriaRepository, Auditoria.VOTO, u, n.getEdicionId(), n.getCategoriaId(), Auditoria.CANAL_API);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     // Historial de votos del votante autenticado

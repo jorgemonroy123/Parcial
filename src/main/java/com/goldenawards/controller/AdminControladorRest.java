@@ -18,26 +18,24 @@ import java.util.Optional;
 @RequestMapping("/api/admin")
 public class AdminControladorRest {
 
-    private static final List<String> ROLES = List.of("ADMIN", "ORGANIZADOR", "VOTANTE", "NOMINADO", "JURADO", "PUBLICO");
+    private static final List<String> ROLES = List.of("ADMIN", "ORGANIZADOR", "VOTANTE", "NOMINADO", "JURADO",
+            "AUDITOR", "MODERADOR", "PERIODISTA", "REPRESENTANTE", "SOPORTE", "PUBLICO");
 
     private final UsuarioRepository usuarioRepository;
     private final JugadorRepository jugadorRepository;
     private final ParametroRepository parametroRepository;
     private final NominacionRepository nominacionRepository;
     private final VotoRepository votoRepository;
-    private final PuntajeRepository puntajeRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AdminControladorRest(UsuarioRepository usuarioRepository, JugadorRepository jugadorRepository,
                                 ParametroRepository parametroRepository, NominacionRepository nominacionRepository,
-                                VotoRepository votoRepository, PuntajeRepository puntajeRepository,
-                                PasswordEncoder passwordEncoder) {
+                                VotoRepository votoRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.jugadorRepository = jugadorRepository;
         this.parametroRepository = parametroRepository;
         this.nominacionRepository = nominacionRepository;
         this.votoRepository = votoRepository;
-        this.puntajeRepository = puntajeRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -108,9 +106,8 @@ public class AdminControladorRest {
         if (u.getUsername().equals(principal.getName())) {
             return error(HttpStatus.BAD_REQUEST, "No puedes eliminar tu propia cuenta");
         }
-        if (!votoRepository.findByVotanteId(id).isEmpty() || !nominacionRepository.findByPropuestoPorId(id).isEmpty()
-                || !puntajeRepository.findByJuradoId(id).isEmpty()) {
-            return error(HttpStatus.CONFLICT, "El usuario tiene votos, calificaciones o nominaciones registradas; desactivalo en lugar de eliminarlo");
+        if (!votoRepository.findByVotanteId(id).isEmpty() || !nominacionRepository.findByPropuestoPorId(id).isEmpty()) {
+            return error(HttpStatus.CONFLICT, "El usuario tiene votos o nominaciones registradas; desactivalo en lugar de eliminarlo");
         }
         usuarioRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("mensaje", "Usuario eliminado"));

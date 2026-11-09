@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Noticia')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<main class="container py-4" style="max-width: 820px;">
+    <a th:href="@{/publico/noticias}" class="btn btn-sm btn-outline-gold mb-3"><i class="bi bi-arrow-left"></i> Noticias</a>
+
+    <article class="glass p-4 p-md-5 fade-up">
+        <div class="small text-secondary mb-2">
+            <i class="bi bi-calendar3"></i> <span th:text="${noticia['fechaPublicacion']}">2026-11-10</span>
+            <span th:if="${noticia['edicion'] != null}"> · <span th:text="${noticia['edicion']}">Edición</span></span>
+        </div>
+        <h1 class="mb-2" th:text="${noticia['titulo']}">Título</h1>
+        <p class="lead text-secondary" th:if="${noticia['resumen'] != null}" th:text="${noticia['resumen']}">Resumen</p>
+        <hr>
+        <div style="white-space: pre-line;" th:text="${noticia['contenido']}">Contenido</div>
+        <hr>
+        <div class="small text-secondary"><i class="bi bi-person-fill text-gold"></i> Por <span th:text="${noticia['autor']}">Autor</span></div>
+    </article>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

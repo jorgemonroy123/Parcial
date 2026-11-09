@@ -33,17 +33,12 @@
             <h4 class="mb-0"><i class="bi bi-award-fill text-gold"></i> <span th:text="${cat['nombre']}">Categoría</span></h4>
             <span class="small text-secondary"><span th:text="${cat['totalVotos']}">0</span> voto(s)</span>
         </div>
-        <p class="small text-secondary mb-2" th:if="${cat['hayJurado']}">
-            <i class="bi bi-info-circle-fill text-gold"></i>
-            Ranking = votos del público (<span th:text="${100 - cat['pesoJurado']}">60</span>%) +
-            calificación del jurado (<span th:text="${cat['pesoJurado']}">40</span>%).
-        </p>
 
         <div class="rank-row" th:each="fila : ${cat['ranking']}"
-             th:classappend="${fila['posicion'] == 1 and (cat['totalVotos'] > 0 or cat['hayJurado'])} ? 'ganador'">
+             th:classappend="${fila['posicion'] == 1 and cat['totalVotos'] > 0} ? 'ganador'">
             <div class="rank-pos">
-                <i th:if="${fila['posicion'] == 1 and (cat['totalVotos'] > 0 or cat['hayJurado'])}" class="bi bi-trophy-fill"></i>
-                <span th:unless="${fila['posicion'] == 1 and (cat['totalVotos'] > 0 or cat['hayJurado'])}" th:text="${fila['posicion']}">2</span>
+                <i th:if="${fila['posicion'] == 1 and cat['totalVotos'] > 0}" class="bi bi-trophy-fill"></i>
+                <span th:unless="${fila['posicion'] == 1 and cat['totalVotos'] > 0}" th:text="${fila['posicion']}">2</span>
             </div>
             <div class="flex-grow-1">
                 <div class="d-flex justify-content-between">
@@ -51,17 +46,9 @@
                         <span class="fw-semibold" th:text="${fila['nombre']}">Jugador</span>
                         <span class="small text-secondary ms-1" th:text="${fila['equipo']}">Equipo</span>
                     </div>
-                    <div class="text-end">
-                        <strong class="text-gold" th:text="${fila['votos']}">0</strong>
-                        <span class="small text-secondary">voto(s) (<span th:text="${fila['porcentaje']}">0</span>%)</span>
-                        <div class="small" th:if="${cat['hayJurado']}">
-                            <i class="bi bi-clipboard2-check-fill text-gold"></i>
-                            Jurado: <strong th:text="${fila['promedioJurado'] != null ? fila['promedioJurado'] : '—'}">0</strong>/10
-                            · Final: <strong class="text-gold" th:text="${fila['puntajeFinal']}">0</strong>
-                        </div>
-                    </div>
+                    <div><strong class="text-gold" th:text="${fila['votos']}">0</strong> <span class="small text-secondary">(<span th:text="${fila['porcentaje']}">0</span>%)</span></div>
                 </div>
-                <div class="rank-bar mt-2"><span th:style="'width:' + ${cat['hayJurado'] ? fila['puntajeFinal'] : fila['porcentaje']} + '%'"></span></div>
+                <div class="rank-bar mt-2"><span th:style="'width:' + ${fila['porcentaje']} + '%'"></span></div>
             </div>
         </div>
         <p class="text-secondary small" th:if="${#lists.isEmpty(cat['ranking'])}">Sin nominados aprobados.</p>

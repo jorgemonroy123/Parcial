@@ -58,6 +58,11 @@ public class SecurityConfig {
                 .requestMatchers("/votante/**", "/api/votante/**").hasRole("VOTANTE")
                 .requestMatchers("/nominado/**", "/api/nominado/**").hasRole("NOMINADO")
                 .requestMatchers("/jurado/**", "/api/jurado/**").hasRole("JURADO")
+                .requestMatchers("/auditor/**", "/api/auditor/**").hasRole("AUDITOR")
+                .requestMatchers("/periodista/**", "/api/periodista/**").hasRole("PERIODISTA")
+                .requestMatchers("/moderador/**", "/api/moderador/**").hasRole("MODERADOR")
+                .requestMatchers("/representante/**", "/api/representante/**").hasRole("REPRESENTANTE")
+                .requestMatchers("/soporte/**", "/api/soporte/**").hasRole("SOPORTE")
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/login")
